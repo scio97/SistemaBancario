@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+        #transaction {
+          font-family: Arial, Helvetica, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        #transaction td, #customers th {
+          border: 1px solid #ddd;
+          padding: 8px;
+        }
+        
+        #transaction tr:nth-child(even){background-color: #f2f2f2;}
+        
+        #transaction tr:hover {background-color: #ddd;}
+        
+        #transaction th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #066163;
+          color: white;
+        }
+    
+         label{
+            font-size: large;
+        }
+    </style>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Transfer</title>
+</head>
+<body>
+    <body style="background-color:  #F2F2F2;">
+        <div class="promtIniziale" style="border:1px; border-style:solid; border-color:#383838; padding: 1em;  " >
+            <h2>Money transfer</h2>
+            <label id="ID_MittenteLabel">ID Sender:</label><br>
+            <input type="TXT" id="ID_Mittente" name="ID_Mittente" required minlength="20" maxlength="20" size="30"> <br><br>
+
+            <label id="ID_DestinatarioLabel">ID Receiver:</label><br>
+            <input type="TXT" id="ID_Destinatario" name="ID_Destinatario" required minlength="20" maxlength="20" size="30"> <br><br>
+
+            <label id="AmmontareLabel">Amount:</label><br>
+            <input type="number" id="Ammontare" name="Ammontare" maxlength="20" size="30"> <br><br>
+
+            <button id="loadDoc"  onclick=loadDoc()>Submit</button> <br>
+            
+        </div>
+
+        <div class="EsitoOperazione" id="DIV_EsitoOperazione" style="border:1px; border-style:solid; border-color:#383838; padding: 1em; margin-top: 1%;  visibility : hidden;">
+            <div id="DIV_Esito">
+            <h2>Operation result</Details></h2>
+                <label id="Esito" ></label><br>
+            </div>
+        </div>
+
+    <script>
+        function loadDoc() {
+            document.getElementById("DIV_EsitoOperazione").style.visibility='visible';
+            const xhttp = new XMLHttpRequest();
+            
+            
+            xhttp.open("POST", "http://127.0.0.1:8000/api/transfer", true);
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            xhttp.setRequestHeader("X-CSRFToken", getCookie('csrftoken') );
+            if(document.getElementById("ID_Mittente").value == "" || document.getElementById("ID_Destinatario").value == "" || document.getElementById("Ammontare").value == ""){
+                document.getElementById("Esito").innerHTML = "Error: Missing or incomplete data";
+            }else if(document.getElementById("Ammontare").value < 0){
+                document.getElementById("Esito").innerHTML = "Error: Negative amount";
+            }else if(document.getElementById("ID_Mittente").value.length != 20 || document.getElementById("ID_Destinatario").value.length != 20){
+                document.getElementById("Esito").innerHTML = "Error: Invalid data length";
+            }else{
+                xhttp.send(JSON.stringify(
+                    {
+                        "from": document.getElementById("ID_Mittente").value,
+                        "to": document.getElementById("ID_Destinatario").value,
+                        "amount": parseInt(document.getElementById("Ammontare").value)
+                    }));
+            }
+
+                xhttp.onreadystatechange = function() {
+                if (xhttp.readyState == 4 && xhttp.status == 201) {
+                    const jresponse= JSON.parse(xhttp.responseText);
+                    document.getElementById("Esito").innerHTML = "Operation completed successfully";
+                }else if(xhttp.readyState == 4 && xhttp.status == 400){
+                        document.getElementById("Esito").innerHTML = "Error: Missing or incomplete data";
+                }else if(xhttp.readyState == 4 && xhttp.status == 404){
+                        document.getElementById("Esito").innerHTML = "Error: User (s) not found";
+                }else if(xhttp.readyState == 4 && xhttp.status == 422){
+                        document.getElementById("Esito").innerHTML = "Error: Invalid data length or negative amount";
+                }else if(xhttp.readyState == 4 && xhttp.status == 409){
+                        document.getElementById("Esito").innerHTML = "Error: Not enough money";
+                }
+            };
+
+            //used for csrf token
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+            return cookieValue;
+            }
+        }
+    </script>
+</body>
+</html>

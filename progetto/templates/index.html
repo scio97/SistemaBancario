@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+    #transaction {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    #transaction td, #customers th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    
+    #transaction tr:nth-child(even){background-color: #f2f2f2;}
+    
+    #transaction tr:hover {background-color: #ddd;}
+    
+    #transaction th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #066163;
+      color: white;
+    }
+
+     label{
+        font-size: large;
+    }
+
+</style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Transfer</title>
+</head>
+<body style="background-color:  #F2F2F2;">
+    <div class="promtIniziale" style="border:1px; border-style:solid; border-color:#383838; padding: 1em;  " >
+        <h2>Account</h2>
+        <label id="LBL_GetName">Id (20 character):</label><br>
+
+        <input type="TXT" id="TXT_name" name="name" required
+            minlength="20" maxlength="20" size="30">
+        <button id="BTN_Account"  onclick=getData()>Submit</button> <br>
+        
+    </div>
+    
+    <div class="AccountInfo" id="DIV_AccountInfo" style="border:1px; border-style:solid; border-color:#383838; padding: 1em; margin-top: 1%;  visibility : hidden;">
+        <div id="DIV_NomeCognome">
+        <h2>Account Details</Details></h2>
+            <label id="LBLconst_name" >Name:</label> <label id="LBL_name">Mario</label><br>
+            <label id="LBLconst_surname">Surname:</label><label id="LBL_surname">Mario</label><br>
+            <label id="LBLconst_balance">Balance:</label><label id="LBL_balance">212</label><br>
+        </div >
+
+        <h2>Transaction list</h2>
+        <div id="DIV_table" >
+            
+            
+            </div>        
+                <script>
+                    function getData() {
+                        document.getElementById("DIV_AccountInfo").style.visibility='hidden';
+                        var xhttp = new XMLHttpRequest();
+                        
+                        xhttp.onreadystatechange = function() {
+                            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                                const jresponse= JSON.parse(xhttp.responseText);
+                                document.getElementById("LBL_name").innerHTML = jresponse.name;
+                                document.getElementById("LBL_surname").innerHTML = jresponse.surname;
+                                document.getElementById("LBL_balance").innerHTML = jresponse.balance;
+                                document.getElementById("DIV_table").innerHTML= "<p>test</p>";
+                                createTable(jresponse);
+                            }else{
+                                if(xhttp.readyState == 4) {
+                                    if(xhttp.status==404){
+                                        alert("Account not exist")
+                                    }
+
+                                    
+                                }
+                            }
+
+                        }
+                        
+                        
+                        var id2= document.getElementById("TXT_name").value;
+                        
+                        
+                        if(id2.length== 20){
+                            var link= "http://127.0.0.1:8000/api/account/"+id2+"/";
+                            xhttp.open("GET", link, true);
+                            xhttp.send();
+                        }else{
+                            alert("Id length must be equal to 20");
+                        }
+                        
+                    }
+
+                        function createTable(jresponse) {
+                            var arr = jresponse.transaction;
+                            var i;
+                            var out ="";
+                            out += "<table id=\"transaction\"><tr><th>Sender</th><th>Reciver</th><th>amount</th></tr>"
+                            for (i = 0; i < (arr.length/3); i++) {
+                                var j=3*i;
+                                out += "<tr id=" + i + "><td>" + arr[j+0] + "</td><td>"
+                                        + arr[j+1] + "</td><td>" + arr[j+2]
+                                        + "</td></tr>";
+                            }
+                            document.getElementById("DIV_table").innerHTML = out;
+                            document.getElementById("DIV_AccountInfo").style.visibility='visible';
+                            document.getElementById(0).style.fontWeight='bold';
+                        }
+                    
+                </script>
+        </div>
+    </div>
+</body>
+
+</html>
