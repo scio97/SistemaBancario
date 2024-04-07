@@ -26,8 +26,11 @@ def account_controller(request):
                 return Response("Incorrect data length", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         except:
             return Response("Bad request", status=status.HTTP_400_BAD_REQUEST) #absent name or surname
-        serializer = AccountSerializers(data=request.data)
-        request.data.update({"id": secrets.token_hex(10)}) #return 20 character string
+        
+        new_data = request.data.copy()
+        new_data['id'] = secrets.token_hex(10)
+        serializer = AccountSerializers(data=new_data)
+
         if serializer.is_valid():
             serializer.save()
         return Response(serializer.data.get('id'), status=status.HTTP_201_CREATED)
