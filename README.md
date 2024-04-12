@@ -3,6 +3,10 @@
 Il progetto implementa le principali funzioni di un sistema bancario, vengono riprodotti servizi elementari come la
 creazione di un account, la chiusura di un account, il versamento e prelievo di denaro e lo spostamento di denaro da un account ad un altro.
 
+### TECNOLOGIE IMPLEMENTATE
+
+Il progetto è stato sviluppato utilizzando le seguenti tecnologie: Python (+ django), HTML, CSS
+
 ## INSTALLAZIONE
 
 Per eseguire correttamente il progetto è necessario avere installata sulla macchina una versione recente dell'interprete di Python, successivamente seguire le istruzioni:
